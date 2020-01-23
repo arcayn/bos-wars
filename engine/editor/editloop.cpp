@@ -751,33 +751,39 @@ static void DrawPlayers()
 {
 	int x = UI.InfoPanel.X + 8;
 	int y = UI.InfoPanel.Y + 4 + IconHeight + 10;
+	int row = 0;
+	int rowLength = 8;
 
 	for (int i = 0; i < PlayerMax; ++i)
 	{
+		if (i%rowLength == 0 && i != 0) {
+			row += 1;
+		}
+
 		if (i == Editor.CursorPlayer && Map.Info.PlayerType[i] != PlayerNobody)
 		{
-			Video.DrawRectangle(ColorWhite, x + i * 20, y, 20, 20);
+			Video.DrawRectangle(ColorWhite, (x + i * 20) - (rowLength * row * 20), y + (row * 25), 20, 20);
 		}
 		Video.DrawRectangle(
 			i == Editor.CursorPlayer && Map.Info.PlayerType[i] != PlayerNobody ?
 				ColorWhite : ColorGray,
-			x + i * 20, y, 19, 19);
+			(x + i * 20) - (rowLength * row * 20), y + (row * 25), 19, 19);
 		if (Map.Info.PlayerType[i] != PlayerNobody)
 		{
-			Video.FillRectangle(Players[i].Color, x + 1 + i * 20, y + 1,
+			Video.FillRectangle(Players[i].Color, (x + 1 + i * 20) - (rowLength * row * 20), y + 1 + (row * 25),
 				17, 17);
 		}
 		if (i == Editor.SelectedPlayer)
 		{
-			Video.DrawRectangle(ColorGreen, x + 1 + i * 20, y + 1, 17, 17);
+			Video.DrawRectangle(ColorGreen, (x + 1 + i * 20) - (rowLength * row * 20), y + 1 + 1 + (row * 25), 17, 17);
 		}
 		std::ostringstream o;
 		o << i;
-		VideoDrawTextCentered(x + i * 20 + 9, y + 3, SmallFont, o.str());
+		VideoDrawTextCentered(x + i * 20 + 9 - (rowLength * row * 20), y + 3 + (row * 25), SmallFont, o.str());
 	}
 	
 	x = UI.InfoPanel.X + 4;
-	y += 18 * 1 + 4;
+	y += 18 * 1 + 4 + row * 25;
 	if (Editor.SelectedPlayer != -1)
 	{
 		std::ostringstream o;
@@ -1590,8 +1596,7 @@ static void EditorCallbackMouse(int x, int y)
 		// Dragging new units on map.
 		//
 		if (CursorOn == CursorOnMap &&
-			Editor.State == EditorEditUnit &&
-			CursorBuilding)
+			(Editor.State == EditorEditUnit || Editor.State == EditorEditPatch))
 		{
 			int moveX = 0;
 			int moveY = 0;
@@ -1622,12 +1627,49 @@ static void EditorCallbackMouse(int x, int y)
 			//
 			RestrictCursorToViewport();
 
-			if (!UnitPlacedThisPress &&
-				CanBuildUnitType(NULL, CursorBuilding, cursorMapX, cursorMapY, 1))
-			{
-				EditorPlaceUnit(cursorMapX, cursorMapY, CursorBuilding, Players + Editor.SelectedPlayer);
-				UnitPlacedThisPress = true;
-				UI.StatusLine.Clear();
+			if (Editor.State == EditorEditUnit) {
+
+				if (!UnitPlacedThisPress &&
+					CanBuildUnitType(NULL, CursorBuilding, cursorMapX, cursorMapY, 1))
+				{
+					EditorPlaceUnit(cursorMapX, cursorMapY, CursorBuilding, Players + Editor.SelectedPlayer);
+					UnitPlacedThisPress = true;
+					UI.StatusLine.Clear();
+				}
+
+			} else if (Editor.State == EditorEditPatch) {
+				
+				if (Editor.SelectedPatchIndex != -1)
+					{
+						// Test if there is a patch below the current one
+						const CPatchType *patchType = Editor.ShownPatchTypes[Editor.SelectedPatchIndex]->PatchType;
+						bool isFirstOfGroup = true;
+						int x = cursorMapX;
+						int y = cursorMapY;
+						int w = patchType->getTileWidth();
+						int h = patchType->getTileHeight();
+
+						bool canPlacePatch = true;
+						for (int i = 0; i < w; ++i)
+						{
+							for (int j = 0; j < h; ++j)
+							{
+								CPatch *patch = Map.PatchManager.getPatch(x + i, y + j);
+								if (patch)
+								{
+									canPlacePatch = false;
+									break;
+								}
+							}
+						}
+						
+						if (canPlacePatch) {
+							// Create the new patch
+							EditorPlacePatch(cursorMapX, cursorMapY, patchType,
+									 &isFirstOfGroup);
+							PatchPlacedThisPress = true;
+						}
+					}
 			}
 			return;
 		}
@@ -1710,8 +1752,17 @@ static void EditorCallbackMouse(int x, int y)
 		// Select player
 		bx = UI.InfoPanel.X + 8;
 		by = UI.InfoPanel.Y + 4 + IconHeight + 10;
+
+		int row = 0;
+		int rowLength = 8;
+
 		for (i = 0; i < PlayerMax; ++i)
 		{
+			if (i%rowLength == 0 && i != 0) {
+				bx = UI.InfoPanel.X + 8;
+				by += 20;
+			}
+
 			if (bx < x && x < bx + 20 && by < y && y < by + 20)
 			{
 				if (Map.Info.PlayerType[i] != PlayerNobody)
@@ -2166,6 +2217,30 @@ static void EditorCallbackButtonDown(unsigned button)
 			CursorStartX = CursorX;
 			CursorStartY = CursorY;
 			GameCursor = UI.Scroll.Cursor;
+		}
+		else if (MouseButtons & RightButton)
+		{
+			if (Editor.State == EditorEditUnit)
+			{
+				// Handle removing units
+				UnitUnderCursor = UnitOnScreen(
+					CursorX - UI.MouseViewport->X + UI.MouseViewport->MapX * TileSizeX + UI.MouseViewport->OffsetX,
+					CursorY - UI.MouseViewport->Y + UI.MouseViewport->MapY * TileSizeY + UI.MouseViewport->OffsetY);
+
+				if (UnitUnderCursor)
+				{
+					//UI.StatusLine.Set("Deleting unit...");
+					EditorActionRemoveUnit(UnitUnderCursor);
+				} 
+				else 
+				{
+					UI.StatusLine.Set("No unit to delete.");
+					PlayGameSound(GameSounds.PlacementError.Sound,
+						MaxSampleVolume);
+				}
+
+				return;
+			}
 		}
 	}
 }

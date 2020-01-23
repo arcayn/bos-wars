@@ -35,6 +35,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
+#include <errno.h>
+#include <iostream>
+#include <fstream>
+#include <cstdio>
+#include <sstream>
 
 #include "stratagus.h"
 
@@ -778,6 +783,39 @@ static int CclGetCompileFeature(lua_State *l)
 	return 1;
 }
 
+static int CclEnableMod(lua_State *l) {
+	const char *str;
+
+	LuaCheckArgs(l, 1);
+
+	str = LuaToString(l, 1);
+
+	std::ostringstream o;
+	std::ostringstream p;
+	o << "mods/_enabled/" << str;
+	p << "mods/" << str;
+
+	std::rename(p.str().c_str(), o.str().c_str());
+	return 0;
+}
+
+static int CclDisableMod(lua_State *l) {
+	const char *str;
+
+	LuaCheckArgs(l, 1);
+
+	str = LuaToString(l, 1);
+
+	std::ostringstream o;
+	std::ostringstream p;
+	o << "mods/_enabled/" << str;
+	p << "mods/" << str;
+
+	std::rename(o.str().c_str(), p.str().c_str());
+
+	return 0;
+}
+
 /*............................................................................
 ..  Commands
 ............................................................................*/
@@ -852,6 +890,9 @@ void InitCcl(void)
 	lua_register(Lua, "GetLocalPlayerName", CclGetLocalPlayerName);
 	lua_register(Lua, "SetGodMode", CclSetGodMode);
 	lua_register(Lua, "GetGodMode", CclGetGodMode);
+
+	lua_register(Lua, "EnableMod", CclEnableMod);
+	lua_register(Lua, "DisableMod", CclDisableMod);
 
 	lua_register(Lua, "SetSpeedBuild", CclSetSpeedBuild);
 	lua_register(Lua, "GetSpeedBuild", CclGetSpeedBuild);

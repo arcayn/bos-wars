@@ -150,7 +150,7 @@
 --  Some limits
 ----------------------------------------------------------------------------*/
 
-#define PlayerMax    9                  /// How many players are supported
+#define PlayerMax    16                 /// How many players are supported
 #define UnitTypeMax  257                /// How many unit types supported
 #define UnitMax      2048               /// How many units supported
 
@@ -159,7 +159,7 @@
 ----------------------------------------------------------------------------*/
 
 	/// Frames per second to display
-#define FRAMES_PER_SECOND  30  // 1/30s
+#define FRAMES_PER_SECOND  90  // 1/30s
 	/// Game cycles per second to simulate
 #define CYCLES_PER_SECOND  30  // 1/30s 33ms
 

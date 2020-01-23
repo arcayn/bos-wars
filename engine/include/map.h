@@ -138,8 +138,8 @@ class CUnitType;
 --  Map
 ----------------------------------------------------------------------------*/
 
-#define MaxMapWidth  256  /// max map width supported
-#define MaxMapHeight 256  /// max map height supported
+#define MaxMapWidth  1024  /// max map width supported
+#define MaxMapHeight 1024  /// max map height supported
 
 /*----------------------------------------------------------------------------
 --  Map - field

@@ -181,7 +181,6 @@ function BuildVideoOptionsMenu(menu)
 
   local modes = {
      -- 4:3, 5:4 aspect ratio modes
-     {  640,  480 },		-- 4:3
      {  800,  600 },		-- 4:3
      { 1024,  768 },		-- 4:3
      { 1280, 1024 },		-- 5:4
@@ -193,7 +192,8 @@ function BuildVideoOptionsMenu(menu)
      { 1440,  900 },		-- 8:5
      { 1680, 1050 },		-- 8:5
      { 1920, 1080 },		-- 16:9
-     { 1920, 1200 }		-- 8:5
+     { 1920, 1200 },
+	 { 3840, 2160 }-- 8:5
   }
 
   local modes2 = math.ceil (#modes / 2);

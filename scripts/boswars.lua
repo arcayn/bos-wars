@@ -137,6 +137,13 @@ DefinePlayerColors({
   "white", {{224, 224, 224}, {152, 152, 180}, {84, 84, 128}, {36, 40, 76}},
   "yellow", {{252, 252, 72}, {228, 204, 40}, {204, 160, 16}, {180, 116, 0}},
   "green", {{44, 180, 148}, {20, 132, 92}, {4, 84, 44}, {0, 40, 12}},
+  "dark_red", {{82, 0, 0}, {62, 0, 0}, {47, 2, 0}, {40, 2, 0}},
+  "dark_blue", {{6, 36, 110}, {4, 25, 80}, {0, 10, 70}, {0, 4, 50}},
+  "dark_violet", {{85, 60, 100}, {70, 25, 70}, {60, 10, 50}, {25, 4, 23}},
+  "dark_orange", {{140, 85, 15}, {105, 40, 10}, {90, 40, 10}, {60, 20, 8}},
+  "bright_white", {{250, 250, 250}, {230, 230, 230}, {220, 220, 220}, {210, 210, 210}},
+  "dark_yellow", {{170, 170, 40}, {130, 110, 25}, {105, 90, 10}, {100, 65, 0}},
+  "dark_green", {{25, 100, 80}, {10, 70, 50}, {2, 50, 25}, {0, 25, 10}},
   "neutral", {{96, 96, 96}, {72, 72, 72}, {48, 48, 48}, {24, 24, 24}},
 })
 
@@ -247,6 +254,13 @@ Load("scripts/ai.lua")
 Load("scripts/commands.lua")
 Load("scripts/cheats.lua")
 Load("scripts/patches.lua")
+
+modlist = ListDirsInDirectory("mods/_enabled")
+
+for k, v in ipairs(modlist) do
+    DebugPrint("Loading mod " .. v)
+    Load("mods/_enabled/" .. v .. "/mod.lua")
+end
 
 
 default_objectives = {_("Eliminate your enemies.")}

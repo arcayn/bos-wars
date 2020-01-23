@@ -12,3 +12,6 @@ engine/Release
 
 stderr.txt
 stdout.txt
+
+.vs
+ipch

@@ -169,13 +169,13 @@ end
 
 function RunEditorPlayerPropertiesMenu()
   local menu = BosGameMenu()
-  menu:setSize(500, 310)
+  menu:setSize(500, 500)
   menu:setPosition((Video.Width - menu:getWidth()) / 2,
     (Video.Height - menu:getHeight()) / 2)
 
   menu:addLabel(_("Player Properties"), 500 / 2, 11)
 
-  local LastEditablePlayer = 7
+  local LastEditablePlayer = 15
 
   for i=0,LastEditablePlayer do
     local l = Label(tostring(i))
@@ -268,7 +268,7 @@ function RunEditorPlayerPropertiesMenu()
     magmaWidgets[i] = d
   end
 
-  menu:addSmallButton(_("~!OK"), (500 - (106 * 2)) / 4, 270,
+  menu:addSmallButton(_("~!OK"), (500 - (106 * 2)) / 4, 460,
     function()
       -- Check for at least 1 Person player type
       local foundPlayer = false
@@ -293,7 +293,7 @@ function RunEditorPlayerPropertiesMenu()
       menu:stop()
     end)
 
-  menu:addSmallButton(_("Cancel (~<Esc~>)"), (500 - (500 - (106 * 2)) / 4) - 106, 270,
+  menu:addSmallButton(_("Cancel (~<Esc~>)"), (500 - (500 - (106 * 2)) / 4) - 106, 460,
     function() menu:stop() end)
 
   menu:run(false)

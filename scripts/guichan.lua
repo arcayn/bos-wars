@@ -39,6 +39,7 @@ bckground:Resize(Video.Width, Video.Height)
 backgroundWidget = ImageWidget(bckground)
 
 local SavedGame = false
+--local os = require "os"
 
 function FilterList(originallist, pattern)
   local filteredlist = {}
@@ -197,7 +198,7 @@ function AddMenuHelpers(menu)
     bq.origpath = path
     bq.actioncb = nil
 
-    local function updateList()
+    function bq:updateList()
       bq.itemslist = lister(bq.path)
       if (bq.path ~= bq.origpath) then
         table.insert(bq.itemslist, 1, "../")
@@ -208,13 +209,13 @@ function AddMenuHelpers(menu)
     -- Change to the default directory and select the default file
     if (default == nil) then
       bq.path = path
-      updateList()
+      bq:updateList()
     else
       local i
       for i = string.len(default) - 1, 1, -1 do
         if (string.sub(default, i, i) == "/") then
           bq.path = string.sub(default, 1, i)
-          updateList()
+          bq:updateList()
 
           local f = string.sub(default, i + 1)
           for i = 1, table.getn(bq.itemslist) do
@@ -245,7 +246,7 @@ function AddMenuHelpers(menu)
           for i = string.len(bq.path) - 1, 1, -1 do
             if (string.sub(bq.path, i, i) == "/") then
               bq.path = string.sub(bq.path, 1, i)
-              updateList()
+              bq:updateList()
               break
             end
           end
@@ -253,7 +254,7 @@ function AddMenuHelpers(menu)
       elseif (string.sub(f, string.len(f)) == '/') then
         if (s ~= "select") then
           bq.path = bq.path .. f
-          updateList()
+          bq:updateList()
         end
       else
         if (bq.actioncb ~= nil) then
@@ -672,6 +673,81 @@ function RunLoadGameMenu(s)
   menu:run()
 end
 
+function RemoveSpecialDirectories(originallist)
+  local filteredlist = {}
+  local k, v
+  for k, v in ipairs(originallist) do
+	if (v:sub(1,1) ~= '_') then
+      table.insert(filteredlist, v)
+    end
+  end
+  return filteredlist  
+end
+
+function CreateModloaderList(lister)
+  function ListFilteredItems(path)
+     return RemoveSpecialDirectories(lister(path))
+  end
+  return ListFilteredItems
+end
+
+
+function RunModloaderMenu(s)
+  local menu
+  local b
+
+  menu = BosMenu("Mod options")
+  local lister = CreateModloaderList(ListDirsInDirectory)
+  
+  menu:writeText("Enabled Mods:", 150, 80)
+  local browser_en = menu:addBrowser("mods/_enabled", lister, 
+                                 150, 100, 200, 200)
+								 
+  menu:writeText("Disabled Mods:", Video.Width - 350, 80)
+  local browser_dis = menu:addBrowser("mods", lister, 
+                                 Video.Width - 350, 100, 200, 200)
+				 
+  function disablebutton(s)
+      local modname = browser_en:getSelectedItem()
+	  if (modname == nil) then
+		return
+	  end
+	  
+      DebugPrint("Mod " .. modname .. " disabled")
+	  DisableMod(modname)
+	  --os.rename("./mods/_enabled/" .. modname, "./mods/" .. modname)
+	  browser_en:updateList()
+	  browser_dis:updateList()
+	  
+  end
+  
+  function enablebutton(s)
+      local modname = browser_dis:getSelectedItem()
+	  if (modname == nil) then
+		return
+	  end
+	  
+      DebugPrint("Mod " .. modname .. " enabled")
+	  EnableMod(modname)
+	  --os.rename("./mods/" .. modname, "./mods/_enabled/" .. modname)
+	  browser_en:updateList()
+	  browser_dis:updateList()
+	  
+  end
+  
+  
+  menu:addButton("~!Disable", 150,  350,
+                 disablebutton)
+  menu:addButton("~!Enable", Video.Width - 350,  350,
+                 enablebutton)
+								 
+  menu:addButton(_("Main Menu (~<Esc~>)"), Video.Width / 2 - 100, Video.Height - 100,
+                 function() menu:stop() end)
+
+  DisallowAllUnits()
+  menu:run()
+end
+
 function RunEditorMenu(s)
   local menu
   local x = Video.Width / 2 - 100
@@ -834,6 +910,8 @@ function BuildMainMenu(menu)
   local ystep = Video.Height / 10
   local x1 = x - 100
   local x2 = 2*x - 100
+  
+  --ToggleFullScreen();
 
   menu:addButton(_("~!Start Game"), x1, ystep * 2, RunStartGameMenu)
   menu:addButton(_("~!Load Game"), x1, ystep * 3, RunLoadGameMenu)
@@ -845,8 +923,10 @@ function BuildMainMenu(menu)
 
   menu:addButton(_("Cre~!dits"), x1, ystep * 6, RunCreditsMenu)
   menu:addButton(_("Start ~!Editor"), x2, ystep * 6, RunEditorMenu)
+  
+  menu:addButton("Modloader", Video.Width / 2 - 100, ystep * 7, RunModloaderMenu)
 
-  menu:addButton(_("E~!xit"), Video.Width / 2 - 100, Video.Height - 100,
+  menu:addButton(_("Exit (~<Esc~>)"), Video.Width / 2 - 100, Video.Height - 100,
                  function() menu:stop() end)
 
   if false then 
