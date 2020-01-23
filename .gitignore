@@ -1,0 +1,14 @@
+engine/Release
+*.vcproj
+*.vcxproj
+*.filters
+*.user
+
+*.opensdf
+*.sdf
+*.sln.old
+*.suo
+*.pdb
+
+stderr.txt
+stdout.txt
