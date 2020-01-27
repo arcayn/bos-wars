@@ -365,8 +365,10 @@ void FireMissile(CUnit *unit)
 		x = unit->Container->X * TileSizeX + TileSizeX / 2;  // missile starts in tile middle
 		y = unit->Container->Y * TileSizeY + TileSizeY / 2;
 	} else {
-		x = unit->X * TileSizeX + TileSizeX / 2;  // missile starts in tile middle
-		y = unit->Y * TileSizeY + TileSizeY / 2;
+		//x = unit->X * TileSizeX + TileSizeX / 2;  // missile starts in tile middle
+		//y = unit->Y * TileSizeY + TileSizeY / 2;
+		x = unit->X * TileSizeX + unit->Type->Missile.Missile->OffsetX;  // missile starts in tile middle
+		y = unit->Y * TileSizeY + unit->Type->Missile.Missile->OffsetY;
 	}
 
 	if (goal) {

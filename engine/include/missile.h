@@ -390,6 +390,8 @@ public:
 	int DrawLevel;             /// Level to draw missile at
 	int SpriteFrames;          /// number of sprite frames in graphic
 	int NumDirections;         /// number of directions missile can face
+	int OffsetY;               /// vertical offset for missile location
+	int OffsetX;               /// horizontal offset for missile location   
 
 	/// @todo FiredSound defined but not used!
 	SoundConfig FiredSound;    /// fired sound

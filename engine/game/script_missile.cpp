@@ -101,6 +101,8 @@ static int CclDefineMissileType(lua_State *l)
 	mtype->Flip = true;
 	// Ensure we don't divide by zero.
 	mtype->SplashFactor = 100;
+	mtype->OffsetX = 0;
+	mtype->OffsetY = 0;
 
 	//
 	// Parse the arguments
@@ -113,6 +115,10 @@ static int CclDefineMissileType(lua_State *l)
 			LuaCheckTableSize(l, -1, 2);
 			mtype->Width = LuaToNumber(l, -1, 1);
 			mtype->Height = LuaToNumber(l, -1, 2);
+		} else if (!strcmp(value, "Offset")) {
+			LuaCheckTableSize(l, -1, 2);
+			mtype->OffsetX = LuaToNumber(l, -1, 1);
+			mtype->OffsetY = LuaToNumber(l, -1, 2);
 		} else if (!strcmp(value, "Frames")) {
 			mtype->SpriteFrames = LuaToNumber(l, -1);
 		} else if (!strcmp(value, "Flip")) {
