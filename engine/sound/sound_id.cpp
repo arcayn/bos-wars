@@ -102,11 +102,6 @@ CSound *MakeSound(const std::string &name, const char *file[], int nb)
 
 	Assert(nb <= 255);
 
-	if ((sound = SoundMap[name])) {
-		DebugPrint("re-register sound `%s'\n" _C_ name.c_str());
-		return sound;
-	}
-
 	sound = RegisterSound(file, nb);
 	MapSound(name, sound);
 
