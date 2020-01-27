@@ -30,9 +30,12 @@
 -- Load the animations for the units.
 Load("scripts/anim.lua")
 
-AllowAll = "AAAAAAAAA"
-ForbidAll = "FFFFFFFFF"
-
+AllowAll = ""
+ForbidAll = ""
+for i=1,PlayerMax do
+	AllowAll = AllowAll .. "A"
+	ForbidAll = ForbidAll .. "F"
+end
 AllowedUnits = {}
 
 local oldDefineAllow = DefineAllow
@@ -48,7 +51,7 @@ end
 
 function DisallowAllUnits()
    for unit, default in pairs(AllowedUnits) do
-      DefineAllow(unit, "FFFFFFFF")
+      DefineAllow(unit, ForbidAll)
    end
 end
 
