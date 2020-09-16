@@ -1090,7 +1090,7 @@ CFont *CFont::New(const std::string &ident, CGraphic *g)
 		swap(fontFamily->G, gptr);
 		return &fontFamily->MarkupFont;
 	} else {
-		std::auto_ptr<CFontFamily> fontFamily(new CFontFamily(ident));
+		std::unique_ptr<CFontFamily> fontFamily(new CFontFamily(ident));
 		swap(fontFamily->G, gptr);
 		FontFamilies.insert(
 			FontFamiliesType::value_type(ident, fontFamily.get()));
